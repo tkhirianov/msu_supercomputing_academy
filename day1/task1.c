@@ -23,8 +23,11 @@ int main(int argc, char **argv)
 
     if (rank == 0)
     {
+	double time0 = MPI_Wtime();
         double sum = part_scalar_production(A, B) + summarize_scalar_production();
-        printf("scalar production=%f\n", sum);
+	double time1 = MPI_Wtime();
+        printf("scalar production = %f\n", sum);
+	printf("time = %f\n", time1 - time0);
     }
     else
     {
@@ -43,9 +46,9 @@ void read_vectors(char *filename, double *A, double *B)
     FILE *fin = fopen(INPUT_FILENAME, "r");
     int i;
     for(i = 0; i < VECTOR_SIZE; i++)
-        scanf("%lf", A+i);
+        fscanf(fin, "%lf", A+i);
     for(i = 0; i < VECTOR_SIZE; i++)
-        scanf("%lf", B+i);
+        fscanf(fin, "%lf", B+i);
     fclose(fin);
 }
 
