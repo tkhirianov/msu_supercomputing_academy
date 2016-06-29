@@ -99,7 +99,7 @@ void reduce_sum(const vector<double> &A, double &sum, double &time_elapsed)
     double part_sum = part_vector_sum(A, start, stop);
 
     double full_sum = -1;
-    MPI_Reduce(&part_sum, &full_sum, 1, MPI_DOUBLE, MPI_SUM, 0 /*root*/, MPI_COMM_WORLD)
+    MPI_Reduce(&part_sum, &full_sum, 1, MPI_DOUBLE, MPI_SUM, 0 /*root*/, MPI_COMM_WORLD);
     sum = full_sum;
 
     time_elapsed = MPI_Wtime() - time0;
