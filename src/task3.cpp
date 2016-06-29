@@ -39,7 +39,7 @@ int task_3()
     return 0;
 }
 
-int main()
+int main(int argc, char **argv)
 {
 #ifdef DEBUG
     block_distribution_test();
