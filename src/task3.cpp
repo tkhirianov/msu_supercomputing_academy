@@ -1,6 +1,7 @@
 #include "mpi.h"
 #include <fstream>
 #include <iostream>
+#include <iomanip>
 #include <vector>
 
 using namespace std;
@@ -31,6 +32,7 @@ int task_3()
 
     if (rank == 0) {
         ofstream fout(output_filename);
+        fout << setprecision(16);
         fout << "sum1 = " << sum1 << " sum2 = " << sum2
             << " dt_1 = " << dt_1 << " dt_2 = " << dt_2 << endl;
     }
@@ -85,18 +87,22 @@ void linear_sum(const vector<double> &A, double &sum, double &time_elapsed)
         sum = -1;  // for non-zero process
     }
 
-    double time1 = MPI_Wtime();
-    time_elapsed = time1 - time0;
+    time_elapsed = MPI_Wtime() - time0;
 }
 
 void reduce_sum(const vector<double> &A, double &sum, double &time_elapsed)
 {
     double time0 = MPI_Wtime();
 
-    sum = -1; //FIXME
+    int start = block_distribution(rank);
+    int stop = block_distribution(rank+1);
+    double part_sum = part_vector_sum(A, start, stop);
 
-    double time1 = MPI_Wtime();
-    time_elapsed = time1 - time0;
+    double full_sum = -1;
+    MPI_Reduce(&part_sum, &full_sum, 1, MPI_DOUBLE, MPI_SUM, 0 /*root*/, MPI_COMM_WORLD)
+    sum = full_sum;
+
+    time_elapsed = MPI_Wtime() - time0;
 }
 
 double part_vector_sum(const vector<double> &A, int start, int stop)
