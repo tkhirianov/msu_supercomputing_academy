@@ -6,5 +6,6 @@ set(CMAKE_C_COMPILER mpicc)
 set(CMAKE_CXX_COMPILER mpicxx)
 ADD_DEFINITIONS( "-DUSE_MPI" )
 
-add_executable(d1_task1.exe day1/task1.c)
+add_executable(task1.exe src/task1.c)
+add_executable(task2.exe src/task2.c)
 
