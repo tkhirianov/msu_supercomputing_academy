@@ -39,7 +39,20 @@ int task_3()
 
 int main()
 {
+#ifdef DEBUG
     block_distribution_test();
+#else
+    MPI_Init(&argc, &argv);
+    MPI_Comm_size(MPI_COMM_WORLD, &num_proc);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    cout << "Process rank=" << rank << " of " << num_proc << " started.\n";
+    task_3();
+    cout << "Process rank=" << rank << " of " << num_proc << " finished.\n";
+
+    MPI_Finalize();
+#endif
+    return 0;
 }
 
 vector<double> generate_vector(int vector_size)
@@ -60,12 +73,14 @@ void linear_sum(const vector<double> &A, double &sum, double &time_elapsed)
         double full_sum = part_vector_sum(A, start, stop);
         double part_sum;
         for (int proc = 1; proc < num_proc; proc += 1) {
+            MPI_Status status;
             MPI_Recv(&part_sum, 1, MPI_DOUBLE, MPI_ANY_SOURCE, tag, MPI_COMM_WORLD, &status);
             full_sum += part_sum;
         }
         sum = full_sum;
     } else {
         double part_sum = part_vector_sum(A, start, stop);
+        MPI_Status status;
         MPI_Send(&part_sum, 1, MPI_DOUBLE, 0, tag, MPI_COMM_WORLD);
         sum = -1;  // for non-zero process
     }
@@ -87,8 +102,7 @@ void reduce_sum(const vector<double> &A, double &sum, double &time_elapsed)
 double part_vector_sum(const vector<double> &A, int start, int stop)
 {
     double part_sum = 0.;
-    int i;
-    for (i = start; i < stop; i += 1)
+    for (int i = start; i < stop; i += 1)
     {
         part_sum += A[i];
     }
@@ -113,7 +127,7 @@ int block_distribution_test()
     vector_size = 12;
     num_proc = 3;
 
-    cout << "vector_size= " << vector_size << " num_proc= " << num_proc << ": "
+    cout << "vector_size= " << vector_size << " num_proc= " << num_proc << ": ";
     for (int i = 0; i <= num_proc; i += 1)
         cout << i << ":" << block_distribution(i);
     cout << endl;
@@ -121,7 +135,7 @@ int block_distribution_test()
     vector_size = 17;
     num_proc = 3;
 
-    cout << "vector_size= " << vector_size << " num_proc= " << num_proc << ": "
+    cout << "vector_size= " << vector_size << " num_proc= " << num_proc << ": ";
     for (int i = 0; i <= num_proc; i += 1)
         cout << i << ":" << block_distribution(i);
     cout << endl;
@@ -129,7 +143,7 @@ int block_distribution_test()
     vector_size = 12;
     num_proc = 5;
 
-    cout << "vector_size= " << vector_size << " num_proc= " << num_proc << ": "
+    cout << "vector_size= " << vector_size << " num_proc= " << num_proc << ": ";
     for (int i = 0; i <= num_proc; i += 1)
         cout << i << ":" << block_distribution(i);
     cout << endl;
