@@ -46,7 +46,7 @@ int task_4()
         for (int process = 1; process < num_proc; process++) {
             MPI_Status status;
             MPI_Recv(&process_info, 1, struct_info_mpi_type, process, tag, MPI_COMM_WORLD, &status);
-            fout << process << " process info:" << my_info << endl;
+            fout << process << " process info:" << process_info << endl;
         }
     }
 
