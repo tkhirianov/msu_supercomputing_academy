@@ -11,6 +11,7 @@
 
 using namespace std;
 
+const char output_filename[] = "task4.out";
 const int tag = 1;
 int rank, num_proc;
 
