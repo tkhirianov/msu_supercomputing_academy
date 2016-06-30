@@ -86,9 +86,9 @@ MPI_Datatype create_struct_info_mpi_type()
     MPI_Datatype struct_info_mpi_type;
     MPI_Datatype types[2] = {MPI_CHAR, MPI_INT};
     int block_lens[2] = {MPI_MAX_PROCESSOR_NAME, 1};
-    MPI_Aint displacements[2] = {(void*)&x.processor_name - (void*)&x, (void*)&x.rank - (void*)&x};
+    MPI_Aint displacements[2] = {(char*)&x.processor_name - (char*)&x, (char*)&x.rank - (char*)&x};
 
-    int MPI_Type_create_struct(2, block_lens, displacements, types, struct_info_mpi_type);
+    MPI_Type_create_struct(2, block_lens, displacements, types, &struct_info_mpi_type);
     MPI_Type_commit(&struct_info_mpi_type);
 
     return struct_info_mpi_type;
