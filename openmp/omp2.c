@@ -32,6 +32,7 @@ int main(int an, char **as)
     init();
     /* time0=omp_get_wtime (); */
     wtime(&time0);
+#pragma omp parallel private(k, j, i) shared(A, B)
     for(it=1; it<=itmax; it++)
     {
         eps = 0.;
@@ -41,6 +42,11 @@ int main(int an, char **as)
         if (eps < maxeps) break;
     }
     wtime(&time1);
+
+#ifdef _OPENMP
+    printf("Number of threads=%d\n",omp_get_max_threads());
+#endif
+
     /* time1=omp_get_wtime (); */
     printf("Time in seconds=%gs\t",time1-time0);
     verify();
