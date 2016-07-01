@@ -94,7 +94,7 @@ void verify()
 {
     double s;
     s=0.;
-#pragma omp for private(i, j, k) firstprivate(s) reduction (+: s) collapse(2)
+#pragma omp parallel for private(i, j, k) reduction (+: s) collapse(2)
     for(i=0; i<=N-1; i++)
         for(j=0; j<=N-1; j++)
             for(k=0; k<=N-1; k++)
