@@ -68,8 +68,8 @@ int task_5()
 
         // построение структуры графа -- интегрального списка смежности
         index[0] = comm2_size - 1;
-        for (int i = 0; i < comm2_size; i++)
-            index[i] = 1;
+        for (int i = 1; i < comm2_size; i++)
+            index[i] = index[i-1] + 1;
         for (int i = 0; i < comm2_size - 1; i++)
             edges[i] = i + 1;
         for (int i = comm2_size; i < comm2_size*2 - 1; i++)
