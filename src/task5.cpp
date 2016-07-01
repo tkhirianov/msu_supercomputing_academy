@@ -92,7 +92,7 @@ int task_5()
 
             int buffer = graph_rank; // передаём свой собственный ранг в графе
             MPI_Status status;
-            MPI_Sendrecv_replace(&buffer, 1, MPI_INT, destination, tag, destination, tag, topology, &status);
+            MPI_Sendrecv_replace(&buffer, 1, MPI_INT, destination, tag, destination, tag, graph_topology, &status);
             cout << "Graph topology process " << graph_rank << " received " << buffer << "from " << destination << " process. " << endl;
         }
 
