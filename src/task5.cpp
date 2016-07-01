@@ -43,9 +43,10 @@ int task_5()
         int periodical = 1;
         MPI_Cart_create(comm1, 1, &dimension, &periodical, 0, &topology);
 
-        // обмен данными по кольцу одномерной топологии:
+        // узнаём целевой узел по кольцу одномерной топологии:
         int source, dest;
         MPI_Cart_shift(topology, 0, +1, &source, &dest);
+
         int buffer = comm1_rank; // передаём свой собственный ранг
         MPI_Status status;
         MPI_Sendrecv_replace(&buffer, 1, MPI_INT, dest, tag, source, tag, topology, &status);
@@ -60,17 +61,40 @@ int task_5()
         MPI_Comm_size(comm2, &comm2_size);
         MPI_Comm_rank(comm2, &comm2_rank);
 
-        /*if (rank != 0) {
-            MPI_Send(&my_info, 1, struct_info_mpi_type, 0, tag, MPI_COMM_WORLD);
-        } else {
-            for (int process = 1; process < num_proc; process++) {
-                MPI_Status status;
-                MPI_Recv(&process_info, 1, struct_info_mpi_type, process, tag, MPI_COMM_WORLD, &status);
-                cout << rank << " process info:" << process_info << endl;
-            }
-        }*/
-        cout << "Graph topology process " << comm2_rank << " do nothing. " << endl;
-    }
+        // создание топологии графа
+        MPI_Comm graph_topology;
+        int index[comm2_size];
+        int edges[comm2_size*2-1];
+
+        // построение структуры графа -- интегрального списка смежности
+        index[0] = comm2_size - 1;
+        for (int i = 0; i < comm2_size; i++)
+            index[i] = 1;
+        for (int i = 0; i < comm2_size - 1; i++)
+            edges[i] = i + 1;
+        for (int i = comm2_size; i < comm2_size*2 - 1; i++)
+            edges[i] = 0;
+
+        MPI_Graph_create(comm2, comm2_size, index, edges, 0, &graph_topology);
+        int graph_size, graph_rank;
+        MPI_Comm_size(graph_topology, &graph_size);
+        MPI_Comm_rank(graph_topology, &graph_rank);
+
+        // запрашиваем у графа количество своих соседей и их ранги в графе
+        int neighbors_number;
+        MPI_Graph_neighbors_count(graph_topology, graph_rank, &neighbors_number);
+        int neighbours[graph_size];
+        MPI_Graph_neighbors(graph_topology, graph_rank, graph_size, neighbours);
+
+        // обмениваемся со всеми своими соседями
+        for (int i = 0; i < neighbors_number; i++) {
+            int destination = neighbours[i];
+
+            int buffer = graph_rank; // передаём свой собственный ранг в графе
+            MPI_Status status;
+            MPI_Sendrecv_replace(&buffer, 1, MPI_INT, destination, tag, destination, tag, topology, &status);
+            cout << "Graph topology process " << graph_rank << " received " << buffer << "from " << destination << " process. " << endl;
+        }
 
         // освобождаем коммуникатор
         MPI_Comm_free(&comm2);
