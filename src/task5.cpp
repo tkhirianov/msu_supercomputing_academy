@@ -48,7 +48,7 @@ int task_5()
         MPI_Cart_shift(topology, 0, +1, &source, &dest);
         int buffer = comm1_rank; // передаём свой собственный ранг
         MPI_Status status;
-        MPI_Sendrecv_replace(&x, 1, MPI_INT, dest, tag, source, tag, topology, &status);
+        MPI_Sendrecv_replace(&buffer, 1, MPI_INT, dest, tag, source, tag, topology, &status);
 
         cout << "Dekart topology process " << comm1_rank << " received: " << buffer << endl;
     } else {
@@ -66,7 +66,7 @@ int task_5()
                 cout << rank << " process info:" << process_info << endl;
             }
         }*/
-        cout << "Graph topology process " << comm1_rank << " do nothing. " << endl;
+        cout << "Graph topology process " << comm2_rank << " do nothing. " << endl;
     }
 
     // освобождаем коммуникаторы
@@ -105,10 +105,9 @@ void create_two_groups(MPI_Group *group1, MPI_Group *group2)
     MPI_Group world_group;
     // Получение группы world_group, соответствующей коммуникатору MPI_COMM_WORLD.
     MPI_Comm_group(MPI_COMM_WORLD, &world_group);
-    size1 = size/2;
-    int ranks[size1];
-    for(i=0; i < size1; i++)
+    int ranks[num_proc/2];
+    for(int i=0; i < num_proc/2; i++)
         ranks[i] = i;
-    MPI_Group_incl(world_group, size1, ranks, group1);
-    MPI_Group_excl(world_group, size1, ranks, group2);
+    MPI_Group_incl(world_group, num_proc/2, ranks, group1);
+    MPI_Group_excl(world_group, num_proc/2, ranks, group2);
 }

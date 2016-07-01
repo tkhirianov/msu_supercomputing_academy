@@ -10,4 +10,5 @@ add_executable(task1.exe src/task1.c)
 add_executable(task2.exe src/task2.c)
 add_executable(task3.exe src/task3.cpp)
 add_executable(task4.exe src/task4.cpp)
+add_executable(task5.exe src/task5.cpp)
 
