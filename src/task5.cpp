@@ -51,6 +51,9 @@ int task_5()
         MPI_Sendrecv_replace(&buffer, 1, MPI_INT, dest, tag, source, tag, topology, &status);
 
         cout << "Dekart topology process " << comm1_rank << " received: " << buffer << endl;
+
+        // освобождаем коммуникатор
+        MPI_Comm_free(&comm1);
     } else {
         // работа процессов второй группы в рамках коммуникатора comm2
         int comm2_rank, comm2_size;
@@ -69,9 +72,9 @@ int task_5()
         cout << "Graph topology process " << comm2_rank << " do nothing. " << endl;
     }
 
-    // освобождаем коммуникаторы
-    MPI_Comm_free(&comm1);
-    MPI_Comm_free(&comm2);
+        // освобождаем коммуникатор
+        MPI_Comm_free(&comm2);
+    }
 
     // освобождаем созданные группы
     MPI_Group_free(&group1);
