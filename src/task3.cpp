@@ -11,7 +11,7 @@ const char output_filename[] = "task3.out";
 const int tag = 1;
 
 int vector_size = 1000000;
-int rank, num_proc;
+int global_rank, num_proc;
 
 void linear_sum(const vector<double> &A, double &sum, double &time_elapsed);
 void reduce_sum(const vector<double> &A, double &sum, double &time_elapsed);
@@ -30,7 +30,7 @@ int task_3()
     linear_sum(A, sum1, dt_1);
     reduce_sum(A, sum2, dt_2);
 
-    if (rank == 0) {
+    if (global_rank == 0) {
         ofstream fout(output_filename);
         fout << setprecision(16);
         fout << "sum1 = " << sum1 << " sum2 = " << sum2
@@ -46,11 +46,11 @@ int main(int argc, char **argv)
 #else
     MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD, &num_proc);
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_rank(MPI_COMM_WORLD, &global_rank);
 
-    cout << "Process rank=" << rank << " of " << num_proc << " started.\n";
+    cout << "Process global_rank=" << global_rank << " of " << num_proc << " started.\n";
     task_3();
-    cout << "Process rank=" << rank << " of " << num_proc << " finished.\n";
+    cout << "Process global_rank=" << global_rank << " of " << num_proc << " finished.\n";
 
     MPI_Finalize();
 #endif
@@ -68,10 +68,10 @@ vector<double> generate_vector(int vector_size)
 void linear_sum(const vector<double> &A, double &sum, double &time_elapsed)
 {
     double time0 = MPI_Wtime();
-    int start = block_distribution(rank);
-    int stop = block_distribution(rank+1);
+    int start = block_distribution(global_rank);
+    int stop = block_distribution(global_rank+1);
 
-    if (rank == 0) {
+    if (global_rank == 0) {
         double full_sum = part_vector_sum(A, start, stop);
         double part_sum;
         for (int proc = 1; proc < num_proc; proc += 1) {
@@ -94,8 +94,8 @@ void reduce_sum(const vector<double> &A, double &sum, double &time_elapsed)
 {
     double time0 = MPI_Wtime();
 
-    int start = block_distribution(rank);
-    int stop = block_distribution(rank+1);
+    int start = block_distribution(global_rank);
+    int stop = block_distribution(global_rank+1);
     double part_sum = part_vector_sum(A, start, stop);
 
     double full_sum = -1;

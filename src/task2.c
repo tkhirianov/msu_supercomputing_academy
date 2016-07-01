@@ -7,7 +7,7 @@
 
 #define MAX_DATA_SIZE 1000000
 
-int rank, num_proc;
+int global_rank, num_proc;
 double trash[MAX_DATA_SIZE];
 
 int main(int argc, char **argv)
@@ -15,11 +15,11 @@ int main(int argc, char **argv)
     MPI_Init(&argc, &argv);
 
     MPI_Comm_size(MPI_COMM_WORLD, &num_proc);
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_rank(MPI_COMM_WORLD, &global_rank);
     MPI_Status status;
     int data_size;
 
-    if (rank == 0)
+    if (global_rank == 0)
     {
         for (data_size = 1; data_size < MAX_DATA_SIZE; data_size *= 2)
         {
@@ -33,7 +33,7 @@ int main(int argc, char **argv)
             printf("data size =%d \ttime = %f\t speed = %f B/s\n", data_size, time1-time0, data_size*sizeof(double)/(time1-time0));
         }
     }
-    else if (rank == 1)
+    else if (global_rank == 1)
     {
         for (data_size = 1; data_size < MAX_DATA_SIZE; data_size *= 2)
         {
@@ -44,7 +44,7 @@ int main(int argc, char **argv)
         }
     }
 
-    printf("Process %d of %d finished.\n", rank, num_proc);
+    printf("Process %d of %d finished.\n", global_rank, num_proc);
     MPI_Finalize();
 
     return 0;

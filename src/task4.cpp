@@ -13,7 +13,7 @@ using namespace std;
 
 const char output_filename[] = "task4.out";
 const int tag = 1;
-int rank, num_proc;
+int global_rank, num_proc;
 
 struct Info{
     char processor_name[MPI_MAX_PROCESSOR_NAME];
@@ -32,12 +32,12 @@ int task_4()
 
     // заполняем информацию о себе
     MPI_Get_processor_name(my_info.processor_name, &length);
-    my_info.rank = rank;
+    my_info.rank = global_rank;
 
     // создаём новый MPI тип
     struct_info_mpi_type = create_struct_info_mpi_type();
 
-    if (rank != 0) {
+    if (global_rank != 0) {
         MPI_Send(&my_info, 1, struct_info_mpi_type, 0, tag, MPI_COMM_WORLD);
     } else {
         ofstream fout(output_filename);
@@ -62,11 +62,11 @@ int main(int argc, char **argv)
 #else
     MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD, &num_proc);
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_rank(MPI_COMM_WORLD, &global_rank);
 
-    cout << "Process rank=" << rank << " of " << num_proc << " started.\n";
+    cout << "Process global_rank=" << global_rank << " of " << num_proc << " started.\n";
     task_4();
-    cout << "Process rank=" << rank << " of " << num_proc << " finished.\n";
+    cout << "Process global_rank=" << global_rank << " of " << num_proc << " finished.\n";
 
     MPI_Finalize();
 #endif
@@ -75,7 +75,7 @@ int main(int argc, char **argv)
 
 ostream& operator << (ostream& out, Info info)
 {
-    out << "processor_name=\'" << info.processor_name << "\', rank=" << info.rank << ".";
+    out << "processor_name=\'" << info.processor_name << "\', global_rank=" << info.rank << ".";
     return out;
 }
 

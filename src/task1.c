@@ -5,7 +5,7 @@
 #define VECTOR_SIZE 1000
 #define TAG 1
 
-int rank, num_proc;
+int global_rank, num_proc;
 
 void read_vectors(char *filename, double *A, double *B);
 double part_scalar_production(double *A, double *B);
@@ -16,12 +16,12 @@ int main(int argc, char **argv)
     MPI_Init(&argc, &argv);
 
     MPI_Comm_size(MPI_COMM_WORLD, &num_proc);
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_rank(MPI_COMM_WORLD, &global_rank);
 
     double A[VECTOR_SIZE], B[VECTOR_SIZE];
     read_vectors(INPUT_FILENAME, A, B);
 
-    if (rank == 0)
+    if (global_rank == 0)
     {
     	double time0 = MPI_Wtime();
         double sum = part_scalar_production(A, B) + summarize_scalar_production();
@@ -35,7 +35,7 @@ int main(int argc, char **argv)
         MPI_Send(&part_sum, 1, MPI_DOUBLE, 0, TAG, MPI_COMM_WORLD);
     }
 
-    printf("Process %d of %d finished.\n", rank, num_proc);
+    printf("Process %d of %d finished.\n", global_rank, num_proc);
     MPI_Finalize();
 
     return 0;
@@ -56,7 +56,7 @@ double part_scalar_production(double *A, double *B)
 {
     double part_sum = 0.;
     int i;
-    for (i = rank; i < VECTOR_SIZE; i += num_proc)
+    for (i = global_rank; i < VECTOR_SIZE; i += num_proc)
     {
         part_sum += A[i]*B[i];
     }
