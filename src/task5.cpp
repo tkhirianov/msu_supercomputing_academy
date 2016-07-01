@@ -72,7 +72,7 @@ int task_5()
             index[i] = index[i-1] + 1;
         for (int i = 0; i < comm2_size - 1; i++)
             edges[i] = i + 1;
-        for (int i = comm2_size; i < comm2_size*2 - 1; i++)
+        for (int i = comm2_size - 1; i < comm2_size*2 - 1; i++)
             edges[i] = 0;
 
         MPI_Graph_create(comm2, comm2_size, index, edges, 0, &graph_topology);
